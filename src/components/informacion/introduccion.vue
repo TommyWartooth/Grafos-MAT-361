@@ -90,6 +90,40 @@
       <h2>Importancia</h2>
       <p>Hoy en día, los algoritmos no solo mueven programas simples; son los que deciden qué ves en redes sociales (algoritmos de recomendación), detectan fraudes bancarios en milisegundos y permiten que la Inteligencia Artificial "aprenda" patrones complejos a partir de millones de datos.</p>
     </div>
+
+
+    <div class = "biblio">
+
+<div class="video-container">
+  <iframe 
+    src="https://www.youtube.com/embed/f10jKIslSUY"
+    allowfullscreen>
+  </iframe>
+</div>
+    </div>
+
+      <div class = "biblio">
+<div class="video-container">
+  <iframe 
+    src="https://www.youtube.com/embed/U3CGMyjzlvM"
+    allowfullscreen>
+  </iframe>
+</div>
+
+
+    </div>
+
+    <div class = "biblio"> 
+
+      <h2> Libro Recomendado </h2>
+    <a href="http://ilitia.cua.uam.mx:8080/jspui/bitstream/123456789/985/1/Introducción%20al%20análisis%20y%20al%20diseño%20de%20algoritmos.pdf"> <i> Introducción al Análisis y
+al Diseño de Algoritmos</i></a>
+
+<p>Dra. María del Carmen Gómez Fuentes
+Dr. Jorge Cervantes Ojeda
+Junio 2014.</p>
+    </div>
+
   </section>
 </template>
 <style scoped>
@@ -101,7 +135,7 @@
 }
 
 .Definicion,
-.comp, .carac,.tabla, .impo{
+.comp, .carac,.tabla, .impo, .biblio{
   background: rgba(5, 9, 39, 0.774);
   padding: 30px;
   border-radius: 15px;
@@ -173,5 +207,29 @@ th, td {
 th {
   background-color: #334155; 
   font-weight: bold;
+}
+
+.video-container {
+  position: relative;
+  padding-bottom: 56.25%; 
+  height: 0;
+}
+
+.video-container iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+
+a{
+  color: #e6e6e6;
+  font-size: 20px;
+  line-height: 1.8;
+  text-align: justify;
+  text-decoration: none;
+
 }
 </style>
