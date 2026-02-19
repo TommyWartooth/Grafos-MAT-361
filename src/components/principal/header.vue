@@ -18,6 +18,14 @@ defineProps({
 </template>
 
 <style scoped>
+@keyframes logoculiao {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 .imagen {
   position: relative;
   width: 100%;
@@ -41,6 +49,8 @@ defineProps({
   font-size: 52px;
   font-weight: bold;
   text-align: center;
+  animation-name: logoculiao;
+  animation-duration: 2s;
 }
 
 .titulo h1 {
@@ -48,5 +58,7 @@ defineProps({
   background-color: rgba(44, 44, 73, 0.89);
   border-radius: 30px;
   padding: 20px;
+  animation-name: logoculiao;
+  animation-duration: 2s;
 }
 </style>

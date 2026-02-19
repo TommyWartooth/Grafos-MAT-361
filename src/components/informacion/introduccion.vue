@@ -14,7 +14,7 @@
     </div>
     <br> </br>
 
-    <div class="comp">
+    <div class="Definicion">
         <h2>Componentes</h2>
         <p>
             Para que una secuencia de pasos sea considerada un algoritmo "bien hecho", debe cumplir con tres partes:
@@ -32,7 +32,7 @@
         <img src="/imagenes/proceso.jpg" alt="">
     </div>
 
-     <div class="carac">
+     <div class="Definicion">
         <h2>Características</h2>
         <p>
             No cualquier lista de pasos es un algoritmo eficiente. Para serlo, requiere:
@@ -50,7 +50,7 @@
     </div>
 
 
-    <div class = "tabla">
+    <div class = "Definicion">
       <h2>Tipos de algoritmos</h2>
    <table>
   <thead>
@@ -86,13 +86,13 @@
   </tbody> </table>
     </div>
 
-    <div class = "impo">
+    <div class = "Definicion">
       <h2>Importancia</h2>
       <p>Hoy en día, los algoritmos no solo mueven programas simples; son los que deciden qué ves en redes sociales (algoritmos de recomendación), detectan fraudes bancarios en milisegundos y permiten que la Inteligencia Artificial "aprenda" patrones complejos a partir de millones de datos.</p>
     </div>
 
 
-    <div class = "biblio">
+    <div class = "Definicion">
 
 <div class="video-container">
   <iframe 
@@ -102,7 +102,7 @@
 </div>
     </div>
 
-      <div class = "biblio">
+      <div class = "Definicion">
 <div class="video-container">
   <iframe 
     src="https://www.youtube.com/embed/U3CGMyjzlvM"
@@ -113,7 +113,7 @@
 
     </div>
 
-    <div class = "biblio"> 
+    <div class = "Definicion"> 
 
       <h2> Libro Recomendado </h2>
     <a href="http://ilitia.cua.uam.mx:8080/jspui/bitstream/123456789/985/1/Introducción%20al%20análisis%20y%20al%20diseño%20de%20algoritmos.pdf"> <i> Introducción al Análisis y
@@ -128,19 +128,31 @@ Junio 2014.</p>
 </template>
 <style scoped>
 
+@keyframes slideInHorizontal {
+  0% {
+    opacity: 0;
+    transform: translateX(-80px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 .intro {
   max-width: 1000px;
   margin: 60px auto;
   padding: 20px;
 }
 
-.Definicion,
-.comp, .carac,.tabla, .impo, .biblio{
+.Definicion{
   background: rgba(5, 9, 39, 0.774);
   padding: 30px;
   border-radius: 15px;
   margin-bottom: 40px;
   backdrop-filter: blur(5px);
+  opacity: 0;
+  animation: slideInHorizontal 0.8s ease-out forwards;
 }
 
 h2 {
@@ -173,6 +185,11 @@ li {
   justify-content: center;
   margin-top: 40px;
   margin-bottom: 40px;
+
+}
+.imagen img:hover{
+   transform: scale(1.05); 
+  transition: 0.3s;
 }
 
 .imagen img {
@@ -232,4 +249,24 @@ a{
   text-decoration: none;
 
 }
+
+.Definicion {
+  transition: all 0.4s ease;
+}
+
+.Definicion:hover {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(187, 208, 248, 0.411);
+}
+
+
+.Definicion:nth-of-type(1) { animation-delay: 0.2s; }
+.Definicion:nth-of-type(2) { animation-delay: 0.4s; }
+.Definicion:nth-of-type(3) { animation-delay: 0.6s; }
+.Definicion:nth-of-type(4) { animation-delay: 0.8s; }
+.Definicion:nth-of-type(5) { animation-delay: 1s; }
+.Definicion:nth-of-type(6) { animation-delay: 1.2s; }
+.Definicion:nth-of-type(7) { animation-delay: 1.4s; }
+
+
 </style>

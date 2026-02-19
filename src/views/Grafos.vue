@@ -51,7 +51,7 @@ onMounted(() => {
           width: 3,
           label: "data(weight)",
           "curve-style": "bezier",
-          "target-arrow-shape": "circle",
+          "target-arrow-shape": "triangle",
           "line-color": "#6366f1",
           "target-arrow-color": "#6366f1",
           color: "#fff",
@@ -157,6 +157,37 @@ const clearGraph = () => {
     title: "Grafo eliminado",
   });
 };
+
+const changeNodeColor = (color) => {
+  const selectedNodes = cy.$("node:selected");
+  if (selectedNodes.length === 0) {
+    Toast.fire({ icon: "warning", title: "Selecciona un nodo" });
+    return;
+  }
+
+  selectedNodes.forEach((node) => {
+    node.style("background-color", color);
+  });
+
+  Toast.fire({ icon: "success", title: "Color de nodo actualizado" });
+};
+
+const changeEdgeColor = (color) => {
+  const selectedEdges = cy.$("edge:selected");
+  if (selectedEdges.length === 0) {
+    Toast.fire({ icon: "warning", title: "Selecciona una arista" });
+    return;
+  }
+
+  selectedEdges.forEach((edge) => {
+    edge.style({
+      "line-color": color,
+      "target-arrow-color": color,
+    });
+  });
+
+  Toast.fire({ icon: "success", title: "Color de arista actualizado" });
+};
 </script>
 
 <template>
@@ -168,6 +199,18 @@ const clearGraph = () => {
         <strong>Un clic en 2 nodos:</strong> Conectar |
         <strong>Supr:</strong> Borrar</span
       >
+      <br> </br>
+      <div class="color-panel">
+        <span>Nodos:</span>
+        <div class="color blue" @click="changeNodeColor('#4f46e5')"></div>
+        <div class="color green" @click="changeNodeColor('#10b981')"></div>
+        <div class="color red" @click="changeNodeColor('#efa544')"></div>
+
+        <span style="margin-left: 15px">Aristas:</span>
+        <div class="color blue" @click="changeEdgeColor('#4f46e5')"></div>
+        <div class="color green" @click="changeEdgeColor('#10b981')"></div>
+        <div class="color red" @click="changeEdgeColor('#efa544')"></div>
+      </div>
       <button @click="clearGraph" class="clear-btn">Limpiar Grafo</button>
     </div>
     <div ref="cyContainer" class="cy-container"></div>
@@ -228,5 +271,36 @@ const clearGraph = () => {
 
 .clear-btn:hover {
   background: #dc2626;
+}
+
+.color-panel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.color {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid white;
+  transition: transform 0.2s;
+}
+
+.color:hover {
+  transform: scale(1.2);
+}
+
+.color.blue {
+  background: #4f46e5;
+}
+
+.color.green {
+  background: #10b981;
+}
+
+.color.red {
+  background: #efa544;
 }
 </style>
