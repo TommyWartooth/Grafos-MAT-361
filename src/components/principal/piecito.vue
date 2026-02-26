@@ -22,9 +22,11 @@
       <div class="contenedor-footer-columna border-gold">
         <div class="footer-texto-medio">
           <span>Emilia Fernanda Crespo Herrera</span>
+          <span>emilia.crespo@ucb.edu.bo</span>
+          <span>+591 73223283</span>
           <span>Ingeniería de Sistemas</span>
-          <span>Análisis de algoritmos MAT-361</span>
-          <span>Semestre 1-2026</span>
+
+          <span>Semestre 1-2026 MAT-361</span>
         </div>
       </div>
     </footer>

@@ -1,8 +1,9 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import cytoscape from "cytoscape";
-import Swal from "sweetalert2";
 
+import Swal from "sweetalert2";
+import interact from 'interactjs';
 const cyContainer = ref(null);
 let cy;
 let selectedNode = null;
@@ -96,7 +97,7 @@ onMounted(() => {
         html: `
           <div style="text-align: left; padding: 0 10px;">
             <label style="display:block; margin-bottom: 8px;">Peso de la arista:</label>
-            <input id="swal-weight" class="swal2-input" type="number" value="1" style="width: 80%; margin: 0 auto 20px auto; display: block;">
+            <input id="swal-weight" class="swal2-input" type="number" step ="any" value="1" style="width: 80%; margin: 0 auto 20px auto; display: block;">
             <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
               <input type="checkbox" id="swal-directed" checked style="width: 20px; height: 20px;">
               <label for="swal-directed">¿Es una arista dirigida?</label>
@@ -188,6 +189,107 @@ const changeEdgeColor = (color) => {
 
   Toast.fire({ icon: "success", title: "Color de arista actualizado" });
 };
+
+const generarMatriz = () => {
+  const nodos = cy.nodes();
+  const edges = cy.edges();
+  const idnodos = nodos.map((n) => n.id());
+  const size = idnodos.length;
+  
+ 
+  const matricita = Array.from({ length: size }, () => Array(size).fill(0));
+
+  edges.forEach((edge) => {
+    const source = edge.data("source");
+    const target = edge.data("target");
+    
+
+    const weight = parseFloat(edge.data("weight")) || 0;
+    
+    const i = idnodos.indexOf(source);
+    const j = idnodos.indexOf(target);
+    
+    if (i !== -1 && j !== -1) {
+      matricita[i][j] = weight;
+      if (edge.style("target-arrow-shape") === "none") {
+        matricita[j][i] = weight;
+      }
+    }
+  });
+
+  
+  const sumasColumnas = Array(size).fill(0);
+  for (let j = 0; j < size; j++) {
+    for (let i = 0; i < size; i++) {
+      sumasColumnas[j] += matricita[i][j];
+    }
+  }
+
+  let tablaHTML = `
+    <div style="overflow-x: auto;">
+      <table style="width: 100%; border-collapse: collapse; margin-top: 10px; font-family: sans-serif; color: #fff;">
+        <thead>
+          <tr>
+            <th style="border: 1px solid #fff; padding: 8px; background: #6366f1;"></th>
+            ${idnodos.map(id => `<th style="border: 1px solid #fff; padding: 8px; background: #6366f1">${id}</th>`).join('')}
+            <th style="border: 1px solid #fff; padding: 8px; background: #b2b3ef; color: #fff;">Σ Filas</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${matricita.map((fila, i) => {
+            const sumaFila = fila.reduce((a, b) => a + b, 0);
+            return `
+              <tr>
+                <td style="border: 1px solid #fff; padding: 8px; font-weight: bold; background: #6366f1;">${idnodos[i]}</td>
+                ${fila.map(valor => `
+                  <td style="border: 1px solid #fff; padding: 8px; text-align: center;">
+                    ${Number.isInteger(valor) ? valor : valor.toFixed(2)}
+                  </td>`).join('')}
+                <td style="border: 1px solid #fff; padding: 8px; text-align: center; font-weight: bold; background: #b2b3ef;">
+                  ${Number.isInteger(sumaFila) ? sumaFila : sumaFila.toFixed(2)}
+                </td>
+              </tr>
+            `;
+          }).join('')}
+          <tr>
+            <td style="border: 1px solid #fff; padding: 8px; font-weight: bold; background: #b2b3ef; color: #fff;">Σ Col.</td>
+            ${sumasColumnas.map(suma => `
+              <td style="border: 1px solid #fff; padding: 8px; text-align: center; font-weight: bold; background: #b2b3ef;">
+                ${Number.isInteger(suma) ? suma : suma.toFixed(2)}
+              </td>`).join('')}
+            <td style="border: 1px solid #fff; background: #b2b3ef;"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  Swal.fire({
+    title: 'Matriz de Adyacencia (Pesos Decimales)',
+    html: tablaHTML,
+    width: '750px', 
+    showCloseButton: true,
+    backdrop: false,
+    background: 'rgba(22, 31, 75, 0.95)',
+    color: '#fff',
+    customClass: { popup: 'draggable-swal' },
+    didOpen: () => {
+      interact('.draggable-swal').draggable({
+        allowFrom: '.swal2-title, .swal2-header',
+        listeners: {
+          move(event) {
+            const { target } = event;
+            const x = (parseFloat(target.getAttribute('data-x')) || 0) + event.dx;
+            const y = (parseFloat(target.getAttribute('data-y')) || 0) + event.dy;
+            target.style.transform = `translate(${x}px, ${y}px)`;
+            target.setAttribute('data-x', x);
+            target.setAttribute('data-y', y);
+          },
+        },
+      });
+    }
+  });
+}
 </script>
 
 <template>
@@ -211,7 +313,16 @@ const changeEdgeColor = (color) => {
         <div class="color green" @click="changeEdgeColor('#10b981')"></div>
         <div class="color red" @click="changeEdgeColor('#efa544')"></div>
       </div>
-      <button @click="clearGraph" class="clear-btn">Limpiar Grafo</button>
+
+     <div class="button-group">
+  <button @click="generarMatriz" class="matrix-btn">
+    Ver Matriz generada
+  </button>
+
+  <button @click="clearGraph" class="clear-btn">
+    Limpiar Grafo
+  </button>
+</div>
     </div>
     <div ref="cyContainer" class="cy-container"></div>
   </div>
@@ -235,7 +346,10 @@ const changeEdgeColor = (color) => {
   display: flex;
   align-items: center;
   gap: 12px;
+   justify-content: flex-start;
 }
+
+
 
 .status-dot {
   width: 8px;
@@ -248,10 +362,9 @@ const changeEdgeColor = (color) => {
 .cy-container {
   width: 100%;
   height: 650px;
-  background: #0f172a; /* Fondo ultra oscuro */
+  background: #0f172a; 
 }
 
-/* Estilos para que los inputs de Swal se vean bien */
 :deep(.swal2-input) {
   background: #334155 !important;
   color: white !important;
@@ -259,7 +372,7 @@ const changeEdgeColor = (color) => {
 }
 
 .clear-btn {
-  margin-left: auto;
+
   background: #ef4444;
   border: none;
   color: white;
@@ -277,6 +390,7 @@ const changeEdgeColor = (color) => {
   display: flex;
   align-items: center;
   gap: 6px;
+  margin-right: auto;
 }
 
 .color {
@@ -302,5 +416,32 @@ const changeEdgeColor = (color) => {
 
 .color.red {
   background: #efa544;
+}
+
+:deep(.draggable-swal) {
+  cursor: default;
+  touch-action: none; 
+  user-select: none;
+  box-shadow: 0 20px 25px -5px rgb(255, 255, 255) !important;
+}
+
+:deep(.swal2-title) {
+  cursor: move !important;
+}
+
+.button-group {
+  display: flex;
+  gap: 8px; 
+
+}
+
+.matrix-btn {
+  background: #4f46e5;
+  border: none;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
 }
 </style>
