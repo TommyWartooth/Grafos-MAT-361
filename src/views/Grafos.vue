@@ -305,48 +305,89 @@ const j = idsNodos.indexOf(target);
     }
   }
 
+  const gradosSalida = matricita.map(fila =>
+  fila.reduce((a, b) => a + (b !== 0 ? 1 : 0), 0)
+);
+
+// 🔹 Grado de entrada
+const gradosEntrada = Array(size).fill(0);
+for (let j = 0; j < size; j++) {
+  for (let i = 0; i < size; i++) {
+    if (matricita[i][j] !== 0) {
+      gradosEntrada[j]++;
+    }
+  }
+}
+
   let tablaHTML = `
-    <div style="overflow-x: auto;">
-      <table style="width: 100%; border-collapse: collapse; margin-top: 10px; font-family: sans-serif; color: #fff;">
-        <thead>
-          <tr>
-            <th style="border: 1px solid #fff; padding: 8px; background: #6366f1;"></th>
-            ${nombresNodos.map(nombre => `
+<div style="overflow-x: auto;">
+<table style="width: 100%; border-collapse: collapse; margin-top: 10px; font-family: sans-serif; color: #fff;">
+<thead>
+<tr>
+<th style="border: 1px solid #fff; padding: 8px; background: #6366f1;"></th>
+${nombresNodos.map(nombre => `
   <th style="border: 1px solid #fff; padding: 8px; background: #6366f1">
     ${nombre}
   </th>
 `).join('')}
-            <th style="border: 1px solid #fff; padding: 8px; background: #b2b3ef; color: #fff;">Σ Filas</th>
-          </tr>
-        </thead>
-        <tbody>
-          ${matricita.map((fila, i) => {
-            const sumaFila = fila.reduce((a, b) => a + b, 0);
-            return `
-              <tr>
-                <td style="border: 1px solid #fff; padding: 8px; font-weight: bold; background: #6366f1;">${nombresNodos[i]}</td>
-                ${fila.map(valor => `
-                  <td style="border: 1px solid #fff; padding: 8px; text-align: center;">
-                    ${Number.isInteger(valor) ? valor : valor.toFixed(2)}
-                  </td>`).join('')}
-                <td style="border: 1px solid #fff; padding: 8px; text-align: center; font-weight: bold; background: #b2b3ef;">
-                  ${Number.isInteger(sumaFila) ? sumaFila : sumaFila.toFixed(2)}
-                </td>
-              </tr>
-            `;
-          }).join('')}
-          <tr>
-            <td style="border: 1px solid #fff; padding: 8px; font-weight: bold; background: #b2b3ef; color: #fff;">Σ Col.</td>
-            ${sumasColumnas.map(suma => `
-              <td style="border: 1px solid #fff; padding: 8px; text-align: center; font-weight: bold; background: #b2b3ef;">
-                ${Number.isInteger(suma) ? suma : suma.toFixed(2)}
-              </td>`).join('')}
-            <td style="border: 1px solid #fff; background: #b2b3ef;"></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+<th style="border: 1px solid #fff; padding: 8px; background: #4f46e5;">Grado Salida</th>
+<th style="border: 1px solid #fff; padding: 8px; background: #b2b3ef;">Σ Filas</th>
+</tr>
+</thead>
+<tbody>
+
+${matricita.map((fila, i) => {
+  const sumaFila = fila.reduce((a, b) => a + b, 0);
+  return `
+  <tr>
+    <td style="border: 1px solid #fff; padding: 8px; font-weight: bold; background: #6366f1;">
+      ${nombresNodos[i]}
+    </td>
+    ${fila.map(valor => `
+      <td style="border: 1px solid #fff; padding: 8px; text-align: center;">
+        ${Number.isInteger(valor) ? valor : valor.toFixed(2)}
+      </td>
+    `).join('')}
+    <td style="border: 1px solid #fff; padding: 8px; text-align: center; background:#4f46e5; font-weight:bold;">
+      ${gradosSalida[i]}
+    </td>
+    <td style="border: 1px solid #fff; padding: 8px; text-align: center; font-weight: bold; background: #b2b3ef;">
+      ${Number.isInteger(sumaFila) ? sumaFila : sumaFila.toFixed(2)}
+    </td>
+  </tr>
   `;
+}).join('')}
+
+<tr>
+<td style="border: 1px solid #fff; padding: 8px; font-weight: bold; background: #4f46e5;">
+Grado Entrada
+</td>
+${gradosEntrada.map(grado => `
+  <td style="border: 1px solid #fff; padding: 8px; text-align: center; background:#4f46e5; font-weight:bold;">
+    ${grado}
+  </td>
+`).join('')}
+<td style="border: 1px solid #fff; background:#4f46e5;"></td>
+<td style="border: 1px solid #fff; background:#4f46e5;"></td>
+</tr>
+
+<tr>
+<td style="border: 1px solid #fff; padding: 8px; font-weight: bold; background: #b2b3ef;">
+Σ Col.
+</td>
+${sumasColumnas.map(suma => `
+  <td style="border: 1px solid #fff; padding: 8px; text-align: center; font-weight: bold; background: #b2b3ef;">
+    ${Number.isInteger(suma) ? suma : suma.toFixed(2)}
+  </td>
+`).join('')}
+<td style="border: 1px solid #fff; background:#b2b3ef;"></td>
+<td style="border: 1px solid #fff; background:#b2b3ef;"></td>
+</tr>
+
+</tbody>
+</table>
+</div>
+`;
 
   Swal.fire({
     title: 'Matriz de Adyacencia (Pesos Decimales)',
