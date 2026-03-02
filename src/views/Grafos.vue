@@ -1,7 +1,7 @@
 <script setup>
 import { onMounted, ref } from "vue";
 import cytoscape from "cytoscape";
-
+import panel from "../components/grafos/panel.vue";
 import Swal from "sweetalert2";
 import interact from 'interactjs';
 const cyContainer = ref(null);
@@ -9,7 +9,7 @@ let cy;
 let selectedNode = null;
 let nodeCount = 1;
 
-// Configuración de Toast para avisos rápidos
+
 const Toast = Swal.mixin({
   toast: true,
   position: "top-end",
@@ -64,15 +64,33 @@ onMounted(() => {
     ],
   });
 
-  cy.on("dbltap", (event) => {
+  cy.on("dbltap", async (event) => {
     if (event.target === cy) {
+      const { value: nombreNodo} = await Swal.fire({
+        title: "Nombre del nodo",
+        input: "text",
+        inputLabel: "Ingresa el nombre del nodo",
+         background: "#1e293b",
+        color: "#f8fafc",
+        showCancelButton: true,
+         confirmButtonText: "Crear",
+      cancelButtonText: "Cancelar",
+      preConfirm: (value) => {
+        if (!value) {
+          
+        Toast.fire({ icon: "error", title: "El nodo necesita un nombre" });
+        
+        }
+      }
+    })
+      if(nombreNodo){
       cy.add({
         group: "nodes",
-        data: { id: `n${nodeCount}`, label: `${nodeCount}` },
+        data: { id: `n${nodeCount}`, label: nombreNodo },
         position: event.position,
       });
       nodeCount++;
-    }
+    }}
   });
 
   // Lógica de conexión con SweetAlert2
@@ -134,7 +152,68 @@ onMounted(() => {
       selectedNode = null;
     }
   });
+  
 
+  cy.on("dbltap", "edge", async (event) => {
+  const edge = event.target
+
+  const esDirigida = edge.style("target-arrow-shape") !== "none"
+
+  const { value: formValues } = await Swal.fire({
+    title: "Editar Conexión",
+    background: "#1e293b",
+    color: "#f8fafc",
+    confirmButtonColor: "#4f46e5",
+    cancelButtonColor: "#ef4444",
+    showCancelButton: true,
+    confirmButtonText: "Actualizar",
+    cancelButtonText: "Cancelar",
+    html: `
+      <div style="text-align: left; padding: 0 10px;">
+        <label style="display:block; margin-bottom: 8px;">Peso de la arista:</label>
+        <input id="swal-weight" class="swal2-input" type="number" step="any"
+          value="${edge.data("weight")}"
+          style="width: 80%; margin: 0 auto 20px auto; display: block;">
+        
+        <div style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+          <input type="checkbox" id="swal-directed"
+            ${esDirigida ? "checked" : ""}
+            style="width: 20px; height: 20px;">
+          <label for="swal-directed">¿Es una arista dirigida?</label>
+        </div>
+      </div>
+    `,
+    preConfirm: () => {
+      const weight = document.getElementById("swal-weight").value
+      const isDirected = document.getElementById("swal-directed").checked
+
+      if (weight === "" || weight === null) {
+        Toast.fire({
+          icon: "error",
+          title: "El peso no puede estar vacío"
+        })
+        return false
+      }
+
+      return { weight, isDirected }
+    },
+  })
+
+  if (formValues) {
+    edge.data("weight", formValues.weight)
+
+    if (formValues.isDirected) {
+      edge.style("target-arrow-shape", "triangle")
+    } else {
+      edge.style("target-arrow-shape", "none")
+    }
+
+    Toast.fire({
+      icon: "success",
+      title: "Arista actualizada"
+    })
+  }
+})
   // Borrar con teclado + Notificación
   window.addEventListener("keydown", (e) => {
     if (e.key === "Delete" || e.key === "Backspace") {
@@ -193,8 +272,9 @@ const changeEdgeColor = (color) => {
 const generarMatriz = () => {
   const nodos = cy.nodes();
   const edges = cy.edges();
-  const idnodos = nodos.map((n) => n.id());
-  const size = idnodos.length;
+const nombresNodos = nodos.map((n) => n.data("label"));
+const idsNodos = nodos.map((n) => n.id());
+ const size = idsNodos.length;
   
  
   const matricita = Array.from({ length: size }, () => Array(size).fill(0));
@@ -206,8 +286,8 @@ const generarMatriz = () => {
 
     const weight = parseFloat(edge.data("weight")) || 0;
     
-    const i = idnodos.indexOf(source);
-    const j = idnodos.indexOf(target);
+   const i = idsNodos.indexOf(source);
+const j = idsNodos.indexOf(target);
     
     if (i !== -1 && j !== -1) {
       matricita[i][j] = weight;
@@ -231,7 +311,11 @@ const generarMatriz = () => {
         <thead>
           <tr>
             <th style="border: 1px solid #fff; padding: 8px; background: #6366f1;"></th>
-            ${idnodos.map(id => `<th style="border: 1px solid #fff; padding: 8px; background: #6366f1">${id}</th>`).join('')}
+            ${nombresNodos.map(nombre => `
+  <th style="border: 1px solid #fff; padding: 8px; background: #6366f1">
+    ${nombre}
+  </th>
+`).join('')}
             <th style="border: 1px solid #fff; padding: 8px; background: #b2b3ef; color: #fff;">Σ Filas</th>
           </tr>
         </thead>
@@ -240,7 +324,7 @@ const generarMatriz = () => {
             const sumaFila = fila.reduce((a, b) => a + b, 0);
             return `
               <tr>
-                <td style="border: 1px solid #fff; padding: 8px; font-weight: bold; background: #6366f1;">${idnodos[i]}</td>
+                <td style="border: 1px solid #fff; padding: 8px; font-weight: bold; background: #6366f1;">${nombresNodos[i]}</td>
                 ${fila.map(valor => `
                   <td style="border: 1px solid #fff; padding: 8px; text-align: center;">
                     ${Number.isInteger(valor) ? valor : valor.toFixed(2)}
@@ -290,6 +374,75 @@ const generarMatriz = () => {
     }
   });
 }
+
+
+const exportarGrafo = async () =>{
+  const data = cy.json()
+  const jsonStr = JSON.stringify(data, null, 2)
+
+  const blob = new Blob([jsonStr], { type: "application/json" })
+  const url = URL.createObjectURL(blob)
+
+
+const result = await Swal.fire({
+  title: "Nombre del grafo",
+  input: "text",
+  showCancelButton: true,
+   preConfirm: (valor) => {
+    if (!valor) {
+      Swal.showValidationMessage("El nombre no puede estar vacío")
+      return false
+    }
+    return valor
+}}
+)
+if (!result.isConfirmed) return
+
+  const nombre = result.value
+
+  const a = document.createElement("a")
+  a.href = url
+  a.download = nombre+".json"
+  a.click()
+
+  URL.revokeObjectURL(url)
+
+}
+
+const fileInput = ref(null)
+
+const abrirExplorador = () => {
+  fileInput.value.click() 
+}
+
+const importarGrafo =(event) =>{
+const file = event.target.files[0]
+  if (!file) return
+
+  const reader = new FileReader()
+
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result)
+
+      
+      cy.elements().remove()
+
+      cy.json(data)
+
+      cy.layout({ name: "cose" }).run()
+
+      Swal.fire("Éxito", "Grafo importado correctamente", "success")
+
+    } catch (err) {
+      Swal.fire("Error", "El archivo no es válido", "error")
+    }
+  }
+
+  reader.readAsText(file)
+
+  event.target.value = ""
+}
 </script>
 
 <template>
@@ -325,7 +478,18 @@ const generarMatriz = () => {
 </div>
     </div>
     <div ref="cyContainer" class="cy-container"></div>
+    
   </div>
+
+  <div> 
+    <input 
+  type="file"
+  ref="fileInput"
+  accept=".json"
+  style="display:none"
+  @change="importarGrafo"
+/><panel @importar="abrirExplorador" @exportar="exportarGrafo"/></div>
+ 
 </template>
 
 <style scoped>
@@ -383,7 +547,7 @@ const generarMatriz = () => {
 }
 
 .clear-btn:hover {
-  background: #dc2626;
+  background: #eb6161;
 }
 
 .color-panel {
@@ -443,5 +607,8 @@ const generarMatriz = () => {
   border-radius: 6px;
   cursor: pointer;
   font-weight: bold;
+}
+.matrix-btn:hover{
+   background: #7771e7;
 }
 </style>
