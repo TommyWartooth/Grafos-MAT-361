@@ -29,6 +29,7 @@ defineEmits(['importar', 'exportar'])
   gap: 15px; /* Espacio entre botones */
   padding: 20px;
   background: #1e293b; /* Color opcional para que combine */
+  border-radius: 15px;
 }
 
 .bt{
