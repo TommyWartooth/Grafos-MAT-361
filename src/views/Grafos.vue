@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from "vue";
+
 import GraphCanvas from "../components/grafos/GraphCanvas.vue";
 import GraphToolbar from "../components/grafos/GraphToolbar.vue";
 import AdjacencyMatrix from "../components/grafos/AdjacencyMatrix.vue";
@@ -10,7 +11,7 @@ import Swal from "sweetalert2";
 const cyInstance = ref(null);
 const matrixRef = ref(null);
 const fileInput = ref(null);
-
+const modoActual = ref('normal');
 // --- MÉTODOS ---
 
 // 1. Capturar la instancia de Cytoscape cuando el Canvas se monta
@@ -96,16 +97,26 @@ const handleImport = (event) => {
   reader.readAsText(file);
   event.target.value = ""; // Limpiar input
 };
+
+const handleEjecutarAlgoritmo = () => {
+  if (modoActual.value === 'cpm') {
+    console.log("Calculando CPM...");
+    // Aquí llamas a tu función de CPM
+  }
+};
 </script>
 
 <template>
   <div class="main-editor">
     <div class="editor-wrapper">
       <GraphToolbar 
-        :cy="cyInstance" 
-        @generarMatriz="matrixRef.mostrarMatriz()" 
-        @clearGraph="handleClearGraph" 
-      />
+  :cy="cyInstance" 
+  :modo="modoActual" 
+  @cambiarModo="(m) => modoActual = m"
+  @ejecutarAlgoritmo="handleEjecutarAlgoritmo"
+  @generarMatriz="matrixRef.mostrarMatriz()" 
+  @clearGraph="handleClearGraph" 
+/>
 
       <GraphCanvas @init="handleInit" />
       
